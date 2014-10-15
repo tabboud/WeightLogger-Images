@@ -2,12 +2,13 @@ Weight Logger Application
 
 Main Features:
    - CoreData
+   - Adding images to CoreData
+
+This code is an extension of the WeightLogger project on my other repos. This extension implements adding an image to CoreData and then displaying it full screen at a later time.
+
 
 iOS 8 source code / Xcode6 project for the weight logger tutorial found on:
-
-https://www.youtube.com/watch?v=cAQtOsfkD5A
-
-
+http://youtu.be/eRHO_HFNFFI
 
 *This code is up-to-date for Xcode 6.0.1 GM
 
