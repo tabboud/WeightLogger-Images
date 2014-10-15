@@ -86,9 +86,25 @@
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ByN-Et-A1k">
+                                <rect key="frame" x="40" y="321" width="240" height="128"/>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
+                    <toolbarItems>
+                        <barButtonItem systemItem="organize" id="fUP-dU-1Rd">
+                            <connections>
+                                <action selector="btnPhotoLibPressed:" destination="AA0-6f-DN1" id="Etu-VK-sOz"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem width="230" style="plain" systemItem="fixedSpace" id="dsm-Rf-a6T"/>
+                        <barButtonItem systemItem="camera" id="qTw-qx-A8i">
+                            <connections>
+                                <action selector="btnCameraPressed:" destination="AA0-6f-DN1" id="7IZ-Cj-TLf"/>
+                            </connections>
+                        </barButtonItem>
+                    </toolbarItems>
                     <navigationItem key="navigationItem" title="Enter Weight" id="XPg-eW-M4I">
                         <barButtonItem key="leftBarButtonItem" title="Home" id="beZ-8P-bQ5">
                             <connections>
@@ -104,6 +120,7 @@
                     <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
                     <connections>
+                        <outlet property="photoPreview" destination="ByN-Et-A1k" id="Vdc-fN-JKb"/>
                         <outlet property="txtWeight" destination="P1X-Uq-fV6" id="G3L-ge-a9Z"/>
                         <outlet property="units" destination="CnY-lb-kyU" id="h11-45-kWa"/>
                     </connections>
@@ -126,6 +143,9 @@
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Nvi-AP-aFN" id="CRl-GS-qTk">
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableViewCellContentView>
+                                <connections>
+                                    <segue destination="7po-iY-Jcu" kind="show" identifier="showFullScreenPhoto" id="ZCB-qo-CJU"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
@@ -150,10 +170,38 @@
             </objects>
             <point key="canvasLocation" x="1316" y="141"/>
         </scene>
+        <!--Full Screen Photo View Controller-->
+        <scene sceneID="hj1-Wk-1BP">
+            <objects>
+                <viewController id="7po-iY-Jcu" customClass="FullScreenPhoto_ViewController" customModule="WeightLogger" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="C1f-g1-SIO"/>
+                        <viewControllerLayoutGuide type="bottom" id="T1i-kT-3uk"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="ydH-Tr-gSz">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="iue-UO-D1Z">
+                                <rect key="frame" x="0.0" y="20" width="320" height="548"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
+                    <connections>
+                        <outlet property="photoFull" destination="iue-UO-D1Z" id="DsS-Cb-MQt"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="k9U-VH-Ar8" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1693" y="141"/>
+        </scene>
         <!--Navigation Controller-->
         <scene sceneID="dEs-Xk-lY0">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="B0h-6x-k3L" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" toolbarHidden="NO" id="B0h-6x-k3L" sceneMemberID="viewController">
                     <toolbarItems/>
                     <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
@@ -162,6 +210,9 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
+                    <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="j5G-pC-iTO">
+                        <autoresizingMask key="autoresizingMask"/>
+                    </toolbar>
                     <connections>
                         <segue destination="AA0-6f-DN1" kind="relationship" relationship="rootViewController" id="U80-Lx-OCS"/>
                     </connections>

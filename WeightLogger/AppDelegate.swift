@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  WeightLogger
 //
-//  Created by Tony on 6/19/14.
+//  Created by Tony on 10/14/14.
 //  Copyright (c) 2014 Abbouds Corner. All rights reserved.
 //
 

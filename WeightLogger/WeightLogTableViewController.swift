@@ -2,7 +2,7 @@
 //  WeightLogTableViewController.swift
 //  WeightLogger
 //
-//  Created by Tony on 6/19/14.
+//  Created by Tony on 10/14/14.
 //  Copyright (c) 2014 Abbouds Corner. All rights reserved.
 //
 
@@ -23,7 +23,16 @@ class WeightLogTableViewController: UITableViewController, UITableViewDelegate, 
         request.returnsObjectsAsFaults = false
         var results: NSArray = context.executeFetchRequest(request, error: nil)!
         
-        for weightEntry: AnyObject in results{
+        for weightEntry: UserWeights in results as [UserWeights]{
+            let noPhotoURL =  NSURL(fileURLWithPath: noPhotoPNG).absoluteString!
+            if(weightEntry.photoFullURL != noPhotoURL){
+                let paths: NSArray = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
+                let documentsDir: NSString = paths.objectAtIndex(0) as NSString
+                
+                //Delete the photo from the Doc. Dir using NSFileManager
+                let fileManager: NSFileManager = NSFileManager.defaultManager()
+                fileManager.removeItemAtPath(documentsDir.stringByAppendingString(weightEntry.photoFullURL), error: nil)
+            }
             context.deleteObject(weightEntry as NSManagedObject)
         }
         context.save(nil)
@@ -45,8 +54,35 @@ class WeightLogTableViewController: UITableViewController, UITableViewDelegate, 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
+
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if(segue.identifier == "showFullScreenPhoto"){
+            //Pass the data to the new viewController
+            let controller: FullScreenPhoto_ViewController = segue.destinationViewController as FullScreenPhoto_ViewController
+            let indexPath: NSIndexPath = self.tableView.indexPathForCell(sender as UITableViewCell)!
+            
+            //Fetch the data from CoreData
+            let appDel = (UIApplication.sharedApplication().delegate as AppDelegate)
+            let context = appDel.managedObjectContext
+            let request = NSFetchRequest(entityName: "UserWeights")
+            request.returnsObjectsAsFaults = false
+            
+            let results: NSArray = context?.executeFetchRequest(request, error: nil) as NSArray!
+            
+            //Get the data for selected cell
+            let userData: UserWeights = results[indexPath.row] as UserWeights
+            
+            // Pass the data to the next view controller
+            controller.photoFullURL = userData.photoFullURL
+            controller.weight = userData.weight
+            controller.date = userData.date
+        }
+    }
     
-// #pragma mark - UITableViewDataSource Methods
+    
+    
+    
+//*** UITableViewDataSource Methods ***//
     override func numberOfSectionsInTableView(tableView: UITableView?) -> Int {
         return 1
     }
@@ -54,9 +90,6 @@ class WeightLogTableViewController: UITableViewController, UITableViewDelegate, 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return totalEntries
     }
-    
-    
-    
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell{
         let cell: UITableViewCell = UITableViewCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: "Default")
@@ -93,6 +126,15 @@ class WeightLogTableViewController: UITableViewController, UITableViewDelegate, 
         let delWeight = tmpObject.valueForKey("weight") as String
         println("Deleted Weight: \(delWeight)")
         
+        let noPhotoURL =  NSURL(fileURLWithPath: noPhotoPNG).absoluteString!
+        if(results[indexPath.row].photoFullURL != noPhotoURL){
+            let paths: NSArray = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
+            let documentsDir: NSString = paths.objectAtIndex(0) as NSString
+            
+            //Delete the photo from the Doc. Dir using NSFileManager
+            let fileManager: NSFileManager = NSFileManager.defaultManager()
+            fileManager.removeItemAtPath(documentsDir.stringByAppendingString(results[indexPath.row].photoFullURL), error: nil)
+        }
         context?.deleteObject(results[indexPath.row] as NSManagedObject)
         context?.save(nil)
         totalEntries = totalEntries - 1
@@ -100,4 +142,38 @@ class WeightLogTableViewController: UITableViewController, UITableViewDelegate, 
         println("Done")
     }
     
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
+        // Force the segue to occur
+        self.performSegueWithIdentifier("showFullScreenPhoto", sender: tableView.cellForRowAtIndexPath(indexPath))
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -16,6 +16,8 @@
 		CE86A00519536C2900A90A9A /* EnterYourWeightViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE86A00419536C2900A90A9A /* EnterYourWeightViewController.swift */; };
 		CE86A00719536C5B00A90A9A /* WeightLogTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE86A00619536C5B00A90A9A /* WeightLogTableViewController.swift */; };
 		CE86A00919536E5300A90A9A /* UserWeights.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE86A00819536E5300A90A9A /* UserWeights.swift */; };
+		CE8D43E819EDFFEF00B7DC46 /* FullScreenPhoto_ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8D43E719EDFFEF00B7DC46 /* FullScreenPhoto_ViewController.swift */; };
+		CE8D43EA19EE066300B7DC46 /* no_photo.png in Resources */ = {isa = PBXBuildFile; fileRef = CE8D43E919EE066300B7DC46 /* no_photo.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -42,6 +44,8 @@
 		CE86A00419536C2900A90A9A /* EnterYourWeightViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnterYourWeightViewController.swift; sourceTree = "<group>"; };
 		CE86A00619536C5B00A90A9A /* WeightLogTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeightLogTableViewController.swift; sourceTree = "<group>"; };
 		CE86A00819536E5300A90A9A /* UserWeights.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWeights.swift; sourceTree = "<group>"; };
+		CE8D43E719EDFFEF00B7DC46 /* FullScreenPhoto_ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FullScreenPhoto_ViewController.swift; path = ../../../Documents/FullScreenPhoto_ViewController.swift; sourceTree = "<group>"; };
+		CE8D43E919EE066300B7DC46 /* no_photo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = no_photo.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +90,7 @@
 				CE569305198A83C60042B9C4 /* ViewController.swift */,
 				CE869FE41953699600A90A9A /* AppDelegate.swift */,
 				CE869FEB1953699600A90A9A /* Main.storyboard */,
+				CE8D43E719EDFFEF00B7DC46 /* FullScreenPhoto_ViewController.swift */,
 				CE86A00419536C2900A90A9A /* EnterYourWeightViewController.swift */,
 				CE86A00619536C5B00A90A9A /* WeightLogTableViewController.swift */,
 				CE86A00819536E5300A90A9A /* UserWeights.swift */,
@@ -99,6 +104,7 @@
 		CE869FE21953699600A90A9A /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				CE8D43E919EE066300B7DC46 /* no_photo.png */,
 				CE869FE31953699600A90A9A /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -203,6 +209,7 @@
 			files = (
 				CE869FED1953699600A90A9A /* Main.storyboard in Resources */,
 				CE869FEF1953699600A90A9A /* Images.xcassets in Resources */,
+				CE8D43EA19EE066300B7DC46 /* no_photo.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -222,6 +229,7 @@
 			files = (
 				CE569306198A83C60042B9C4 /* ViewController.swift in Sources */,
 				CE86A00719536C5B00A90A9A /* WeightLogTableViewController.swift in Sources */,
+				CE8D43E819EDFFEF00B7DC46 /* FullScreenPhoto_ViewController.swift in Sources */,
 				CE86A00919536E5300A90A9A /* UserWeights.swift in Sources */,
 				CE869FE51953699600A90A9A /* AppDelegate.swift in Sources */,
 				CE86A00519536C2900A90A9A /* EnterYourWeightViewController.swift in Sources */,
