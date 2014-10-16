@@ -125,7 +125,10 @@ class EnterYourWeightViewController: UIViewController, UIImagePickerControllerDe
         let priority = DISPATCH_QUEUE_PRIORITY_DEFAULT
         dispatch_async(dispatch_get_global_queue(priority, 0), {
             // Scale the original image down before saving it (Good Practice)
-            var newImage: UIImage = self.scaledImageWithImage(image, size: CGSize(width: 320, height: 568))
+            
+            // Get the screen size for the target device
+            let screenSize: CGSize = UIScreen.mainScreen().bounds.size
+            var newImage: UIImage = self.scaledImageWithImage(image, size: CGSize(width: screenSize.width, height: screenSize.height))
             
             dispatch_async(dispatch_get_main_queue(), {
                     self.photoPreview.image = newImage
