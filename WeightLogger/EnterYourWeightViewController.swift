@@ -14,6 +14,7 @@ let noPhotoPNG = "no_photo.png"
 
 class EnterYourWeightViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     var photoFullURL: String!
+    var photoThumbURL: String!
     
     @IBOutlet var photoPreview: UIImageView!
     @IBOutlet var txtWeight : UITextField!
@@ -51,8 +52,10 @@ class EnterYourWeightViewController: UIViewController, UIImagePickerControllerDe
             if(self.photoFullURL == nil){
                 let URL = NSURL(fileURLWithPath: noPhotoPNG).absoluteString!
                 newWeight.photoFullURL = URL
+                newWeight.photoThumbURL = URL
             }else{
                 newWeight.photoFullURL = self.photoFullURL
+                newWeight.photoThumbURL = self.photoThumbURL
             }
             
             context.save(nil)
@@ -119,30 +122,42 @@ class EnterYourWeightViewController: UIViewController, UIImagePickerControllerDe
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [NSObject : AnyObject]){
         let image: UIImage = info[UIImagePickerControllerOriginalImage] as UIImage
         
-        // Scale the original image down before saving it (Good Practice)
-        var newImage: UIImage = scaledImageWithImage(image, size: CGSize(width: 320, height: 568))
-        
-        self.photoPreview.image = newImage
-        
-        // Get path to the Documents Dir.
-        let paths: NSArray = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
-        let documentsDir: NSString = paths.objectAtIndex(0) as NSString
-        
-        // Get current date and time for unique name
-        var dateFormat = NSDateFormatter()
-        dateFormat.dateFormat = "yyyy-MM-dd-HH-mm-ss"
-        let now:NSDate = NSDate(timeIntervalSinceNow: 0)
-        let theDate: NSString = dateFormat.stringFromDate(now)
-        
-        // Set URL for the full screen image
-        self.photoFullURL = NSString(format: "/%@.png", theDate)
-        
-        // Save the full screen image via pngData
-        let pathFull: NSString = documentsDir.stringByAppendingString(self.photoFullURL)
-        let pngFullData: NSData = UIImagePNGRepresentation(newImage)
-        pngFullData.writeToFile(pathFull, atomically: true)
-        
-        picker.dismissViewControllerAnimated(true, completion: nil)
+        let priority = DISPATCH_QUEUE_PRIORITY_DEFAULT
+        dispatch_async(dispatch_get_global_queue(priority, 0), {
+            // Scale the original image down before saving it (Good Practice)
+            var newImage: UIImage = self.scaledImageWithImage(image, size: CGSize(width: 320, height: 568))
+            
+            dispatch_async(dispatch_get_main_queue(), {
+                    self.photoPreview.image = newImage
+                    picker.dismissViewControllerAnimated(true, completion: nil)
+            })
+            // Get path to the Documents Dir.
+            let paths: NSArray = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
+            let documentsDir: NSString = paths.objectAtIndex(0) as NSString
+            
+            // Get current date and time for unique name
+            var dateFormat = NSDateFormatter()
+            dateFormat.dateFormat = "yyyy-MM-dd-HH-mm-ss"
+            let now:NSDate = NSDate(timeIntervalSinceNow: 0)
+            let theDate: NSString = dateFormat.stringFromDate(now)
+            
+            // Set URL for the full screen image
+            self.photoFullURL = NSString(format: "/%@.png", theDate)
+            
+            // Save the full screen image via pngData
+            let pathFull: NSString = documentsDir.stringByAppendingString(self.photoFullURL)
+            let pngFullData: NSData = UIImagePNGRepresentation(newImage)
+            pngFullData.writeToFile(pathFull, atomically: true)
+            
+            //  Create the thumbnail from the original image
+            let thumbnailImage: UIImage = self.scaledImageWithImage(newImage, size: CGSize(width: 100, height: 100))
+            self.photoThumbURL = NSString(format: "/@_THUMB.png", theDate)
+            
+            // Save the thumbnail image
+            let pathThumb: NSString = documentsDir.stringByAppendingString(self.photoThumbURL)
+            let pngThumbData: NSData = UIImagePNGRepresentation(thumbnailImage)
+            pngThumbData.writeToFile(pathThumb, atomically: true)
+        })
     }
     
     func imagePickerControllerDidCancel(picker: UIImagePickerController){

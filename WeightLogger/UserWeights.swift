@@ -16,5 +16,6 @@ class UserWeights: NSManagedObject {
     @NSManaged var date: String
     @NSManaged var units: String
     @NSManaged var photoFullURL: String
+    @NSManaged var photoThumbURL: String
     
 }

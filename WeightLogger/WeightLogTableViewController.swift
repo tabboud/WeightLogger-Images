@@ -32,6 +32,7 @@ class WeightLogTableViewController: UITableViewController, UITableViewDelegate, 
                 //Delete the photo from the Doc. Dir using NSFileManager
                 let fileManager: NSFileManager = NSFileManager.defaultManager()
                 fileManager.removeItemAtPath(documentsDir.stringByAppendingString(weightEntry.photoFullURL), error: nil)
+                fileManager.removeItemAtPath(documentsDir.stringByAppendingString(weightEntry.photoThumbURL), error: nil)
             }
             context.deleteObject(weightEntry as NSManagedObject)
         }
@@ -91,8 +92,14 @@ class WeightLogTableViewController: UITableViewController, UITableViewDelegate, 
         return totalEntries
     }
     
+    override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat{
+        return 75.0
+    }
+    
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell{
-        let cell: UITableViewCell = UITableViewCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: "Default")
+        
+        let reuseIdentifier = "WeightLogItem"
+        let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier(reuseIdentifier) as UITableViewCell
         var appDel = (UIApplication.sharedApplication().delegate as AppDelegate)
         var context = appDel.managedObjectContext
         var request = NSFetchRequest(entityName: "UserWeights")
@@ -102,8 +109,25 @@ class WeightLogTableViewController: UITableViewController, UITableViewDelegate, 
         
         //get contents and put into cell
         var thisWeight: UserWeights = results[indexPath.row] as UserWeights
-        cell.textLabel?.text = thisWeight.weight + " " + thisWeight.units
-        cell.detailTextLabel?.text = thisWeight.date
+        
+        let weightLabel: UILabel = cell.viewWithTag(101) as UILabel
+        weightLabel.text = thisWeight.weight + " " + thisWeight.units
+        
+        let dateDetailLabel: UILabel = cell.viewWithTag(102) as UILabel
+        dateDetailLabel.text = thisWeight.date
+        
+        let thumbnailPhoto: UIImageView = cell.viewWithTag(100) as UIImageView
+        let noPhotoStr = NSURL(fileURLWithPath: noPhotoPNG).absoluteString!
+        if(thisWeight.photoFullURL != noPhotoStr){
+            let paths: NSArray = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
+            let documentsDir: NSString = paths.objectAtIndex(0) as NSString
+            
+            let path: NSString = documentsDir.stringByAppendingString(thisWeight.photoThumbURL)
+            thumbnailPhoto.image = UIImage(contentsOfFile: path)
+        }else{
+            thumbnailPhoto.image = UIImage(named: noPhotoPNG)
+        }
+   
         return cell
     }
     
@@ -113,7 +137,8 @@ class WeightLogTableViewController: UITableViewController, UITableViewDelegate, 
     
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath){
         //delete object from entity, remove from list
-        let cell: UITableViewCell = UITableViewCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: "Default")
+        let reuseIdentifier = "WeightLogItem"
+        let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier(reuseIdentifier) as UITableViewCell
         var appDel = (UIApplication.sharedApplication().delegate as AppDelegate)
         var context = appDel.managedObjectContext
         var request = NSFetchRequest(entityName: "UserWeights")
@@ -134,6 +159,8 @@ class WeightLogTableViewController: UITableViewController, UITableViewDelegate, 
             //Delete the photo from the Doc. Dir using NSFileManager
             let fileManager: NSFileManager = NSFileManager.defaultManager()
             fileManager.removeItemAtPath(documentsDir.stringByAppendingString(results[indexPath.row].photoFullURL), error: nil)
+            fileManager.removeItemAtPath(documentsDir.stringByAppendingString(results[indexPath.row].photoThumbURL), error: nil)
+            
         }
         context?.deleteObject(results[indexPath.row] as NSManagedObject)
         context?.save(nil)
@@ -142,10 +169,10 @@ class WeightLogTableViewController: UITableViewController, UITableViewDelegate, 
         println("Done")
     }
     
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
-        // Force the segue to occur
-        self.performSegueWithIdentifier("showFullScreenPhoto", sender: tableView.cellForRowAtIndexPath(indexPath))
-    }
+//    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
+//        // Force the segue to occur
+//        self.performSegueWithIdentifier("showFullScreenPhoto", sender: tableView.cellForRowAtIndexPath(indexPath))
+//    }
 
 }
 
