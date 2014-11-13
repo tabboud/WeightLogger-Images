@@ -24,7 +24,7 @@ class WeightLogTableViewController: UITableViewController, UITableViewDelegate, 
         var results: NSArray = context.executeFetchRequest(request, error: nil)!
         
         for weightEntry: UserWeights in results as [UserWeights]{
-            let noPhotoURL =  NSURL(fileURLWithPath: noPhotoPNG).absoluteString!
+            let noPhotoURL =  NSURL(fileURLWithPath: noPhotoPNG)?.absoluteString
             if(weightEntry.photoFullURL != noPhotoURL){
                 let paths: NSArray = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
                 let documentsDir: NSString = paths.objectAtIndex(0) as NSString
@@ -117,7 +117,7 @@ class WeightLogTableViewController: UITableViewController, UITableViewDelegate, 
         dateDetailLabel.text = thisWeight.date
         
         let thumbnailPhoto: UIImageView = cell.viewWithTag(100) as UIImageView
-        let noPhotoStr = NSURL(fileURLWithPath: noPhotoPNG).absoluteString!
+        let noPhotoStr = NSURL(fileURLWithPath: noPhotoPNG)?.absoluteString
         if(thisWeight.photoFullURL != noPhotoStr){
             let paths: NSArray = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
             let documentsDir: NSString = paths.objectAtIndex(0) as NSString
@@ -151,7 +151,7 @@ class WeightLogTableViewController: UITableViewController, UITableViewDelegate, 
         let delWeight = tmpObject.valueForKey("weight") as String
         println("Deleted Weight: \(delWeight)")
         
-        let noPhotoURL =  NSURL(fileURLWithPath: noPhotoPNG).absoluteString!
+        let noPhotoURL =  NSURL(fileURLWithPath: noPhotoPNG)?.absoluteString
         if(results[indexPath.row].photoFullURL != noPhotoURL){
             let paths: NSArray = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
             let documentsDir: NSString = paths.objectAtIndex(0) as NSString

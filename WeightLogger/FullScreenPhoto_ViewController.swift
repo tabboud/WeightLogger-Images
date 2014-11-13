@@ -24,7 +24,7 @@ class FullScreenPhoto_ViewController: UIViewController {
 
     override func viewWillAppear(animated: Bool) {
         // Get photo from path URL and display it
-        let noPhotoURL =  NSURL(fileURLWithPath: noPhotoPNG).absoluteString!
+        let noPhotoURL =  NSURL(fileURLWithPath: noPhotoPNG)?.absoluteString
         if(self.photoFullURL != noPhotoURL){
             let paths: NSArray = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
             let documentsDir: NSString = paths.objectAtIndex(0) as NSString
