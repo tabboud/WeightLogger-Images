@@ -10,46 +10,49 @@ import UIKit
 import CoreData
 
 
-class WeightLogTableViewController: UITableViewController, UITableViewDelegate, UITableViewDataSource {
+class WeightLogTableViewController: UITableViewController {
     var totalEntries: Int = 0
     
     @IBOutlet var tblLog : UITableView?
     
     @IBAction func btnClearLog(sender : AnyObject) {
-        var appDel = (UIApplication.sharedApplication().delegate as AppDelegate)
-        var context = appDel.managedObjectContext!
+        let appDel = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context = appDel.managedObjectContext
         
-        var request = NSFetchRequest(entityName: "UserWeights")
+        let request = NSFetchRequest(entityName: "UserWeights")
         request.returnsObjectsAsFaults = false
-        var results: NSArray = context.executeFetchRequest(request, error: nil)!
-        
-        for weightEntry: UserWeights in results as [UserWeights]{
-            let noPhotoURL =  NSURL(fileURLWithPath: noPhotoPNG)?.absoluteString
-            if(weightEntry.photoFullURL != noPhotoURL){
-                let paths: NSArray = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
-                let documentsDir: NSString = paths.objectAtIndex(0) as NSString
-                
-                //Delete the photo from the Doc. Dir using NSFileManager
-                let fileManager: NSFileManager = NSFileManager.defaultManager()
-                fileManager.removeItemAtPath(documentsDir.stringByAppendingString(weightEntry.photoFullURL), error: nil)
-                fileManager.removeItemAtPath(documentsDir.stringByAppendingString(weightEntry.photoThumbURL), error: nil)
+        do {
+            let results: NSArray = try context.executeFetchRequest(request)
+            for weightEntry: UserWeights in results as! [UserWeights]{
+                let noPhotoURL =  NSURL(fileURLWithPath: noPhotoPNG).absoluteString
+                if(weightEntry.photoFullURL != noPhotoURL){
+                    let paths: NSArray = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
+                    let documentsDir: NSString = paths.objectAtIndex(0) as! NSString
+                    
+                    //Delete the photo from the Doc. Dir using NSFileManager
+                    let fileManager: NSFileManager = NSFileManager.defaultManager()
+                    try fileManager.removeItemAtPath(documentsDir.stringByAppendingString(weightEntry.photoFullURL))
+                    try fileManager.removeItemAtPath(documentsDir.stringByAppendingString(weightEntry.photoThumbURL))
+                }
+                context.deleteObject(weightEntry as NSManagedObject)
             }
-            context.deleteObject(weightEntry as NSManagedObject)
-        }
-        context.save(nil)
+            try context.save()
+        } catch _ {
+                
+            }
         totalEntries = 0
         tblLog?.reloadData()
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        var appDel = (UIApplication.sharedApplication().delegate as AppDelegate)
-        var context = appDel.managedObjectContext
+        let appDel = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context = appDel.managedObjectContext
         
-        var request = NSFetchRequest(entityName: "UserWeights")
+        let request = NSFetchRequest(entityName: "UserWeights")
         request.returnsObjectsAsFaults = false
         
-        totalEntries = context?.countForFetchRequest(request, error: nil) as Int!
+        totalEntries = context.countForFetchRequest(request, error: nil) as Int!
     }
     
     override func didReceiveMemoryWarning() {
@@ -59,19 +62,23 @@ class WeightLogTableViewController: UITableViewController, UITableViewDelegate, 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if(segue.identifier == "showFullScreenPhoto"){
             //Pass the data to the new viewController
-            let controller: FullScreenPhoto_ViewController = segue.destinationViewController as FullScreenPhoto_ViewController
-            let indexPath: NSIndexPath = self.tableView.indexPathForCell(sender as UITableViewCell)!
+            let controller: FullScreenPhoto_ViewController = segue.destinationViewController as! FullScreenPhoto_ViewController
+            let indexPath: NSIndexPath = self.tableView.indexPathForCell(sender as! UITableViewCell)!
             
             //Fetch the data from CoreData
-            let appDel = (UIApplication.sharedApplication().delegate as AppDelegate)
+            let appDel = (UIApplication.sharedApplication().delegate as! AppDelegate)
             let context = appDel.managedObjectContext
             let request = NSFetchRequest(entityName: "UserWeights")
             request.returnsObjectsAsFaults = false
+            var results = NSArray()
             
-            let results: NSArray = context?.executeFetchRequest(request, error: nil) as NSArray!
-            
+            do{
+                results = try context.executeFetchRequest(request)
+            } catch {
+                
+            }
             //Get the data for selected cell
-            let userData: UserWeights = results[indexPath.row] as UserWeights
+            let userData: UserWeights = results[indexPath.row] as! UserWeights
             
             // Pass the data to the next view controller
             controller.photoFullURL = userData.photoFullURL
@@ -99,31 +106,35 @@ class WeightLogTableViewController: UITableViewController, UITableViewDelegate, 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell{
         
         let reuseIdentifier = "WeightLogItem"
-        let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier(reuseIdentifier) as UITableViewCell
-        var appDel = (UIApplication.sharedApplication().delegate as AppDelegate)
-        var context = appDel.managedObjectContext
-        var request = NSFetchRequest(entityName: "UserWeights")
+        let cell = tableView.dequeueReusableCellWithIdentifier(reuseIdentifier) as UITableViewCell!
+        let appDel = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context = appDel.managedObjectContext
+        let request = NSFetchRequest(entityName: "UserWeights")
         request.returnsObjectsAsFaults = false
+        var results: NSArray = NSArray()
+        do {
+            results = try context.executeFetchRequest(request)
+        }catch {
         
-        var results: NSArray = context?.executeFetchRequest(request, error: nil) as NSArray!
+        }
         
         //get contents and put into cell
-        var thisWeight: UserWeights = results[indexPath.row] as UserWeights
+        let thisWeight: UserWeights = results[indexPath.row] as! UserWeights
         
-        let weightLabel: UILabel = cell.viewWithTag(101) as UILabel
+        let weightLabel: UILabel = cell.viewWithTag(101) as! UILabel
         weightLabel.text = thisWeight.weight + " " + thisWeight.units
         
-        let dateDetailLabel: UILabel = cell.viewWithTag(102) as UILabel
+        let dateDetailLabel: UILabel = cell.viewWithTag(102) as! UILabel
         dateDetailLabel.text = thisWeight.date
         
-        let thumbnailPhoto: UIImageView = cell.viewWithTag(100) as UIImageView
-        let noPhotoStr = NSURL(fileURLWithPath: noPhotoPNG)?.absoluteString
+        let thumbnailPhoto: UIImageView = cell.viewWithTag(100) as! UIImageView
+        let noPhotoStr = NSURL(fileURLWithPath: noPhotoPNG).absoluteString
         if(thisWeight.photoFullURL != noPhotoStr){
             let paths: NSArray = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
-            let documentsDir: NSString = paths.objectAtIndex(0) as NSString
+            let documentsDir: NSString = paths.objectAtIndex(0) as! NSString
             
             let path: NSString = documentsDir.stringByAppendingString(thisWeight.photoThumbURL)
-            thumbnailPhoto.image = UIImage(contentsOfFile: path)
+            thumbnailPhoto.image = UIImage(contentsOfFile: path as String)
         }else{
             thumbnailPhoto.image = UIImage(named: noPhotoPNG)
         }
@@ -138,35 +149,48 @@ class WeightLogTableViewController: UITableViewController, UITableViewDelegate, 
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath){
         //delete object from entity, remove from list
         let reuseIdentifier = "WeightLogItem"
-        let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier(reuseIdentifier) as UITableViewCell
-        var appDel = (UIApplication.sharedApplication().delegate as AppDelegate)
-        var context = appDel.managedObjectContext
-        var request = NSFetchRequest(entityName: "UserWeights")
+        _ = tableView.dequeueReusableCellWithIdentifier(reuseIdentifier)
+        let appDel = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context = appDel.managedObjectContext
+        let request = NSFetchRequest(entityName: "UserWeights")
         request.returnsObjectsAsFaults = false
-        
-        let results: NSArray = context?.executeFetchRequest(request, error: nil) as NSArray!
+        var results = NSArray()
+        do {
+            results = try context.executeFetchRequest(request)
+        } catch {
+            
+        }
         
         //Get value that is being deeleted
-        let tmpObject: NSManagedObject = results[indexPath.row] as NSManagedObject
-        let delWeight = tmpObject.valueForKey("weight") as String
-        println("Deleted Weight: \(delWeight)")
+        let tmpObject: NSManagedObject = results[indexPath.row] as! NSManagedObject
+        let delWeight = tmpObject.valueForKey("weight") as! String
+        print("Deleted Weight: \(delWeight)")
         
-        let noPhotoURL =  NSURL(fileURLWithPath: noPhotoPNG)?.absoluteString
+        let noPhotoURL =  NSURL(fileURLWithPath: noPhotoPNG).absoluteString
         if(results[indexPath.row].photoFullURL != noPhotoURL){
             let paths: NSArray = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
-            let documentsDir: NSString = paths.objectAtIndex(0) as NSString
+            let documentsDir: NSString = paths.objectAtIndex(0) as! NSString
             
             //Delete the photo from the Doc. Dir using NSFileManager
             let fileManager: NSFileManager = NSFileManager.defaultManager()
-            fileManager.removeItemAtPath(documentsDir.stringByAppendingString(results[indexPath.row].photoFullURL), error: nil)
-            fileManager.removeItemAtPath(documentsDir.stringByAppendingString(results[indexPath.row].photoThumbURL), error: nil)
+            do {
+                try fileManager.removeItemAtPath(documentsDir.stringByAppendingString(results[indexPath.row].photoFullURL))
+            } catch _ {
+            }
+            do {
+                try fileManager.removeItemAtPath(documentsDir.stringByAppendingString(results[indexPath.row].photoThumbURL))
+            } catch _ {
+            }
             
         }
-        context?.deleteObject(results[indexPath.row] as NSManagedObject)
-        context?.save(nil)
+        context.deleteObject(results[indexPath.row] as! NSManagedObject)
+        do{
+            try context.save()
+        } catch _ {
+        }
         totalEntries = totalEntries - 1
         tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        println("Done")
+        print("Done")
     }
     
 //    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){

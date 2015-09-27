@@ -22,56 +22,61 @@ class EnterYourWeightViewController: UIViewController, UIImagePickerControllerDe
     
     @IBAction func btnSavePressed(sender : AnyObject) {
         // Check if the user entered a weight
-        if(!txtWeight.text.isEmpty){
-            var appDel: AppDelegate = (UIApplication.sharedApplication().delegate as AppDelegate)
-            var context: NSManagedObjectContext = appDel.managedObjectContext!
-            
-            
-            let ent = NSEntityDescription.entityForName("UserWeights", inManagedObjectContext: context)!
-            
-            //Instance of our custom class, reference to entity
-            var newWeight = UserWeights(entity: ent, insertIntoManagedObjectContext: context)
-            
-            // Fill in the Core Data
-            newWeight.weight = txtWeight.text
-            if(units.on){
-                newWeight.units = "lbs"
-            }else{
-                //Switch is off
-                newWeight.units = "kgs"
-            }
-            
-            let dateFormatter = NSDateFormatter()
-            var curLocale: NSLocale = NSLocale.currentLocale()
-            var formatString: NSString = NSDateFormatter.dateFormatFromTemplate("EdMMM h:mm a", options: 0, locale: curLocale)!
-            dateFormatter.dateFormat = formatString
-            newWeight.date = dateFormatter.stringFromDate(NSDate())
-            
-            
-            // Save the reference to photo (i.e. URL) to CoreData
-            if(self.photoFullURL == nil){
-                if let URL = NSURL(fileURLWithPath: noPhotoPNG)?.absoluteString{
+        if let weight = txtWeight.text{
+            if weight.isEmpty == false{
+                let appDel: AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+                let context: NSManagedObjectContext = appDel.managedObjectContext
+                
+                
+                let ent = NSEntityDescription.entityForName("UserWeights", inManagedObjectContext: context)!
+                
+                //Instance of our custom class, reference to entity
+                let newWeight = UserWeights(entity: ent, insertIntoManagedObjectContext: context)
+                
+                // Fill in the Core Data
+                newWeight.weight = weight
+                if(units.on){
+                    newWeight.units = "lbs"
+                }else{
+                    //Switch is off
+                    newWeight.units = "kgs"
+                }
+                
+                let dateFormatter = NSDateFormatter()
+                let curLocale: NSLocale = NSLocale.currentLocale()
+                let formatString: NSString = NSDateFormatter.dateFormatFromTemplate("EdMMM h:mm a", options: 0, locale: curLocale)!
+                dateFormatter.dateFormat = formatString as String
+                newWeight.date = dateFormatter.stringFromDate(NSDate())
+                
+                
+                // Save the reference to photo (i.e. URL) to CoreData
+                if(self.photoFullURL == nil){
+                    let URL = NSURL(fileURLWithPath: noPhotoPNG).absoluteString
                     newWeight.photoFullURL = URL
                     newWeight.photoThumbURL = URL
+                }else{
+                    newWeight.photoFullURL = self.photoFullURL
+                    newWeight.photoThumbURL = self.photoThumbURL
                 }
+                
+                do {
+                    try context.save()
+                } catch _ {
+                }
+                
+                // Reset all parameters upon saving
+                resetParameters()
             }else{
-                newWeight.photoFullURL = self.photoFullURL
-                newWeight.photoThumbURL = self.photoThumbURL
+                //User carelessly pressed save button without entering weight.
+                var alert:UIAlertController = UIAlertController(title: "No Weight Entered", message: "Enter your weight before pressing save.", preferredStyle: .Alert)
+                alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: {(result)in
+                    alert.dismissViewControllerAnimated(true, completion: nil)
+                }))
+                self.presentViewController(alert, animated: true, completion: nil)
             }
-            
-            context.save(nil)
-            
-            // Reset all parameters upon saving
-            resetParameters()
         }else{
-            //User carelessly pressed save button without entering weight.
-            var alert:UIAlertController = UIAlertController(title: "No Weight Entered", message: "Enter your weight before pressing save.", preferredStyle: .Alert)
-            alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: {(result)in
-                alert.dismissViewControllerAnimated(true, completion: nil)
-            }))
-            self.presentViewController(alert, animated: true, completion: nil)
+            print("No element text for the UITextField 'txtWeight'")
         }
-        
     }
     
     @IBAction func btnPhotoLibPressed(sender: AnyObject) {
@@ -102,8 +107,7 @@ class EnterYourWeightViewController: UIViewController, UIImagePickerControllerDe
         
     }
     
-    
-    override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
         self.view.endEditing(true)
     }
     
@@ -120,8 +124,8 @@ class EnterYourWeightViewController: UIViewController, UIImagePickerControllerDe
     
     
 // UIImagePickerControllerDelegate Methods
-    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [NSObject : AnyObject]){
-        let image: UIImage = info[UIImagePickerControllerOriginalImage] as UIImage
+    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]){
+        let image: UIImage = info[UIImagePickerControllerOriginalImage] as! UIImage
         
         let priority = DISPATCH_QUEUE_PRIORITY_DEFAULT
         dispatch_async(dispatch_get_global_queue(priority, 0), {
@@ -129,7 +133,7 @@ class EnterYourWeightViewController: UIViewController, UIImagePickerControllerDe
             
             // Get the screen size for the target device
             let screenSize: CGSize = UIScreen.mainScreen().bounds.size
-            var newImage: UIImage = self.scaledImageWithImage(image, size: CGSize(width: screenSize.width, height: screenSize.height))
+            let newImage: UIImage = self.scaledImageWithImage(image, size: CGSize(width: screenSize.width, height: screenSize.height))
             
             dispatch_async(dispatch_get_main_queue(), {
                     self.photoPreview.image = newImage
@@ -137,30 +141,30 @@ class EnterYourWeightViewController: UIViewController, UIImagePickerControllerDe
             })
             // Get path to the Documents Dir.
             let paths: NSArray = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
-            let documentsDir: NSString = paths.objectAtIndex(0) as NSString
+            let documentsDir: NSString = paths.objectAtIndex(0) as! NSString
             
             // Get current date and time for unique name
-            var dateFormat = NSDateFormatter()
+            let dateFormat = NSDateFormatter()
             dateFormat.dateFormat = "yyyy-MM-dd-HH-mm-ss"
             let now:NSDate = NSDate(timeIntervalSinceNow: 0)
             let theDate: NSString = dateFormat.stringFromDate(now)
             
             // Set URL for the full screen image
-            self.photoFullURL = NSString(format: "/%@.png", theDate)
+            self.photoFullURL = NSString(format: "/%@.png", theDate) as String
             
             // Save the full screen image via pngData
             let pathFull: NSString = documentsDir.stringByAppendingString(self.photoFullURL)
-            let pngFullData: NSData = UIImagePNGRepresentation(newImage)
-            pngFullData.writeToFile(pathFull, atomically: true)
+            let pngFullData: NSData = UIImagePNGRepresentation(newImage)!
+            pngFullData.writeToFile(pathFull as String, atomically: true)
             
             //  Create the thumbnail from the original image
             let thumbnailImage: UIImage = self.scaledImageWithImage(newImage, size: CGSize(width: 100, height: 100))
-            self.photoThumbURL = NSString(format: "/%@_THUMB.png", theDate)
+            self.photoThumbURL = NSString(format: "/%@_THUMB.png", theDate) as String
             
             // Save the thumbnail image
             let pathThumb: NSString = documentsDir.stringByAppendingString(self.photoThumbURL)
-            let pngThumbData: NSData = UIImagePNGRepresentation(thumbnailImage)
-            pngThumbData.writeToFile(pathThumb, atomically: true)
+            let pngThumbData: NSData = UIImagePNGRepresentation(thumbnailImage)!
+            pngThumbData.writeToFile(pathThumb as String, atomically: true)
         })
     }
     
